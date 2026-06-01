@@ -119,29 +119,19 @@ Two kinds of storage:
   These survive `down`/restart. `docker compose down -v` wipes them (your
   `WORKSPACES_DIR` data is kept).
 
-## Bottom-up tools (FragPipe / DIA-NN) — optional, bring-your-own
-Top-down tools (TopFD / TopPIC / FLASHDeconv / …) are **bundled** and work out of
-the box. The **bottom-up** suite (FragPipe + DIA-NN) is **not shipped** in the
-image — those tools carry their own licenses that don't let us redistribute them.
-A **guided setup** makes adding them easy: you only download **3 license-gated
-tools** yourself; everything else ships with FragPipe and is arranged for you.
+## Tools — all bundled
+Both **top-down** (TopFD / TopPIC / FLASHDeconv / InformedProteomics / msconvert)
+and **bottom-up** (FragPipe suite + DIA-NN) tools are **baked into the image** and
+work out of the box — no downloads, no setup. Just pull and run.
 
-```bash
-# 1. Start the setup helper (the official FragPipe GUI, on Linux)
-docker compose --profile setup run --rm --service-ports tool-setup
-#    -> open http://localhost:6080/vnc.html
-#    In FragPipe -> Config: download MSFragger, IonQuant, diaTracer (accept each
-#    academic license), save under /work.
-
-# 2. Lay them out for the agent
-docker compose --profile setup run --rm tool-setup arrange
-
-# 3. Enable the mount: uncomment the bottom-up line under `agent` in
-#    docker-compose.yml, then restart
-docker compose up -d
-```
-The agent resolves tools **version-tolerantly**, so whatever versions FragPipe
-gives you work. Full details + a manual alternative: `fragpipe-tools/README.md`.
+> **Internal/academic use only.** The bundled bottom-up tools (MSFragger, IonQuant,
+> diaTracer, DIA-NN) are licensed for academic / non-commercial research and may
+> not be redistributed or used commercially. Keep this image within your group.
+>
+> Leave the optional `fragpipe-tools` mount in `docker-compose.yml` **commented** —
+> mounting over `/opt/fragpipe-tools` would hide the bundled tools. (A
+> bring-your-own variant, for a license-clean build, is described in
+> `fragpipe-tools/README.md`.)
 
 ## Troubleshooting
 - **`docker login` fails with a TLS/x509 error** — the `ca.crt` trust step (§1)
