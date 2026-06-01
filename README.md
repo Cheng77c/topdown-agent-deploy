@@ -119,27 +119,4 @@ Two kinds of storage:
   These survive `down`/restart. `docker compose down -v` wipes them (your
   `WORKSPACES_DIR` data is kept).
 
-## Tools — all bundled
-Both **top-down** (TopFD / TopPIC / FLASHDeconv / InformedProteomics / msconvert)
-and **bottom-up** (FragPipe suite + DIA-NN) tools are **baked into the image** and
-work out of the box — no downloads, no setup. Just pull and run.
 
-> **Internal/academic use only.** The bundled bottom-up tools (MSFragger, IonQuant,
-> diaTracer, DIA-NN) are licensed for academic / non-commercial research and may
-> not be redistributed or used commercially. Keep this image within your group.
->
-> Leave the optional `fragpipe-tools` mount in `docker-compose.yml` **commented** —
-> mounting over `/opt/fragpipe-tools` would hide the bundled tools. (A
-> bring-your-own variant, for a license-clean build, is described in
-> `fragpipe-tools/README.md`.)
-
-## Troubleshooting
-- **`docker login` fails with a TLS/x509 error** — the `ca.crt` trust step (§1)
-  wasn't applied, or Docker Desktop wasn't restarted afterward. Re-do §1.
-- **`docker login` fails with unauthorized** — wrong username/password, or your
-  account was removed; contact us.
-- **Pull is slow** — first pull is several GB; subsequent updates are deltas.
-- **Apple Silicon, tools fail** — the Windows-based converters (msconvert) run
-  under emulation and can be flaky; prefer Windows/Intel for those steps, or feed
-  `.mzML` directly.
-- Anything else — send us `docker compose logs agent` and `docker compose logs viewer-td`.
