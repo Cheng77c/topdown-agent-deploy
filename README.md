@@ -12,7 +12,20 @@ containers; everything is pulled from a private registry.
 > The agent images are **linux/amd64**. On Apple Silicon Macs, enable Docker
 > Desktop → Settings → General → **Use Rosetta for x86/amd64 emulation**.
 
-## 1. Trust our registry, then log in
+## 1. Get the kit
+Clone this repository (we've granted your GitHub account read access), or unzip
+the kit archive we sent you, then enter the folder:
+```bash
+git clone https://github.com/Cheng77c/topdown-agent-deploy.git
+cd topdown-agent-deploy
+```
+**All commands below assume you are inside this folder** — it contains `ca.crt`,
+`docker-compose.yml` and `.env.example`. Verify:
+```bash
+ls ca.crt docker-compose.yml .env.example
+```
+
+## 2. Trust our registry, then log in
 Our registry is `hgmz1471486.bohrium.tech:50001` and uses a **self-signed
 certificate**, so Docker must be told to trust our `ca.crt` (shipped in this kit)
 **once** before logging in.
@@ -33,12 +46,12 @@ sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keyc
 Authorities** (Run → `certlm.msc` → Trusted Root → Import), then restart Docker
 Desktop.
 
-Then log in:
+Then log in (run from inside the kit folder):
 ```bash
 docker login hgmz1471486.bohrium.tech:50001     # username + password we gave you
 ```
 
-## 2. Configure
+## 3. Configure
 ```bash
 cp .env.example .env
 ```
@@ -69,12 +82,13 @@ right next to your data — for **any** task (top-down, bottom-up, auto-search).
   a VM translation layer, so heavy read/write is slower than on Linux. For large
   campaigns, prefer a Linux host.
 
-## 3. Pull and start
+## 4. Pull and start
 ```bash
 docker compose pull
 docker compose up -d
 ```
-Open **http://localhost:3000**.
+Open **http://localhost:3000**. The first `pull` downloads several GB (the agent
+image bundles all analysis tools), so it takes a while.
 
 ## Day-to-day
 ```bash
