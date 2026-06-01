@@ -13,12 +13,13 @@ containers; everything is pulled from a private registry.
 > Desktop → Settings → General → **Use Rosetta for x86/amd64 emulation**.
 
 ## 1. Get the kit
-Clone this repository (we've granted your GitHub account read access), or unzip
-the kit archive we sent you, then enter the folder:
+Clone this repository, then enter the folder:
 ```bash
 git clone https://github.com/Cheng77c/topdown-agent-deploy.git
 cd topdown-agent-deploy
 ```
+> The kit (compose + docs + CA cert) is public, but the **images themselves stay
+> private** — you still need the username + password we gave you (step 3).
 **All commands below assume you are inside this folder** — it contains `ca.crt`,
 `docker-compose.yml` and `.env.example`. Verify:
 ```bash
