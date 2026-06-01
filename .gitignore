@@ -2,3 +2,7 @@
 .env
 workspaces/
 data/
+
+# bottom-up tools you drop in — never commit the binaries
+fragpipe-tools/*
+!fragpipe-tools/README.md

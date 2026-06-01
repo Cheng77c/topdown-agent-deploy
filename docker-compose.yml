@@ -46,8 +46,8 @@ services:
     volumes:
       - agent-state:/data                                # internal: jobs.db + fallback root (fast, user-invisible)
       - ${WORKSPACES_DIR:-./workspaces}:/workspaces:rw    # USER DATA: inputs + products + viewer bundles (pick a folder here)
-      # Bottom-up (FragPipe/DIA-NN) BYO — set FRAGPIPE_TOOLS_DIR in .env, then uncomment (see README):
-      # - ${FRAGPIPE_TOOLS_DIR}:/opt/fragpipe-tools:ro
+      # Bottom-up (FragPipe/DIA-NN) BYO — drop tools into ./fragpipe-tools/, then uncomment (see README):
+      # - ${FRAGPIPE_TOOLS_DIR:-./fragpipe-tools}:/opt/fragpipe-tools:ro
     ports:
       - "${AGENT_PORT:-50001}:8000"
     restart: unless-stopped

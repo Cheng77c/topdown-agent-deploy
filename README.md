@@ -159,13 +159,15 @@ Assembling this exact tree by hand is fiddly — **ask us for the layout manifes
 a pre-arranged bundle** (we can share it once your license permits).
 
 ### 3. Wire it in
-Set `FRAGPIPE_TOOLS_DIR` in `.env` to your folder, and **uncomment** the bottom-up
-mount under the `agent` service in `docker-compose.yml`:
+The kit already includes an empty **`fragpipe-tools/`** folder (with a layout
+guide inside). Just drop your tools into it, then **uncomment** the bottom-up mount
+under the `agent` service in `docker-compose.yml`:
 ```yaml
-    # - ${FRAGPIPE_TOOLS_DIR}:/opt/fragpipe-tools:ro
+    # - ${FRAGPIPE_TOOLS_DIR:-./fragpipe-tools}:/opt/fragpipe-tools:ro
 ```
 Then `docker compose up -d`. The bottom-up tools now resolve at runtime (read-only,
-no image rebuild needed).
+no image rebuild needed). To keep the tools elsewhere, set `FRAGPIPE_TOOLS_DIR` in
+`.env` to that path instead.
 
 ## Troubleshooting
 - **`docker login` fails with a TLS/x509 error** — the `ca.crt` trust step (§1)
