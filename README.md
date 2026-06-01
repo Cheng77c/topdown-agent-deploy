@@ -25,10 +25,10 @@ cd topdown-agent-deploy
 ls ca.crt docker-compose.yml .env.example
 ```
 
-## 2. Trust our registry, then log in
+## 2. Trust our registry's certificate
 Our registry is `hgmz1471486.bohrium.tech:50001` and uses a **self-signed
 certificate**, so Docker must be told to trust our `ca.crt` (shipped in this kit)
-**once** before logging in.
+**once** before you can log in.
 
 **Linux (Docker Engine):**
 ```bash
@@ -46,12 +46,21 @@ sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keyc
 Authorities** (Run → `certlm.msc` → Trusted Root → Import), then restart Docker
 Desktop.
 
-Then log in (run from inside the kit folder):
+## 3. Log in to the registry
+With the CA trusted, log in using the **username + password** we gave you (run
+from inside the kit folder):
 ```bash
-docker login hgmz1471486.bohrium.tech:50001     # username + password we gave you
+docker login hgmz1471486.bohrium.tech:50001
+# Username: <the name we gave you>
+# Password: <the password we gave you>
 ```
+You should see **`Login Succeeded`**. If you instead get an `x509`/TLS error, the
+CA trust in step 2 didn't take effect — redo it and **restart Docker Desktop**.
 
-## 3. Configure
+> This is the only login. The web app itself (step 5, http://localhost:3000) has
+> **no login screen** — it opens straight into the workspace.
+
+## 4. Configure
 ```bash
 cp .env.example .env
 ```
@@ -82,13 +91,14 @@ right next to your data — for **any** task (top-down, bottom-up, auto-search).
   a VM translation layer, so heavy read/write is slower than on Linux. For large
   campaigns, prefer a Linux host.
 
-## 4. Pull and start
+## 5. Pull and start
 ```bash
 docker compose pull
 docker compose up -d
 ```
-Open **http://localhost:3000**. The first `pull` downloads several GB (the agent
-image bundles all analysis tools), so it takes a while.
+Open **http://localhost:3000** (no login — straight into the app). The first
+`pull` downloads several GB (the agent image bundles all analysis tools), so it
+takes a while.
 
 ## Day-to-day
 ```bash
