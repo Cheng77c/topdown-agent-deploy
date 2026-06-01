@@ -119,9 +119,53 @@ Two kinds of storage:
   These survive `down`/restart. `docker compose down -v` wipes them (your
   `WORKSPACES_DIR` data is kept).
 
-## Bring-your-own bottom-up tools (optional)
-The top-down tools are bundled. The bottom-up suite (FragPipe / DIA-NN) is only
-included if your release was built with them; otherwise contact us.
+## Bottom-up tools (FragPipe / DIA-NN) — optional, bring-your-own
+Top-down tools (TopFD / TopPIC / FLASHDeconv / …) are **bundled** and work out of
+the box. The **bottom-up** suite (FragPipe + DIA-NN) is **not shipped** in the
+public image — those tools carry their own licenses that don't let us redistribute
+them. If you want the bottom-up panel, download them yourself (free for academic
+use) and mount them in.
+
+### 1. Download
+| Get | From | Note |
+|---|---|---|
+| **FragPipe 24.0** — bundles MSFragger 4.4, IonQuant 1.11.20, MSBooster 1.4.14, Philosopher, PTM-Shepherd 3.0.11, Crystal-C, diaTracer 2.2.1, TMT-Integrator | https://github.com/Nesvilab/FragPipe/releases (tag **24.0**) | on first launch FragPipe downloads MSFragger/IonQuant/Philosopher/diaTracer **after you accept each license** — do that once, then copy the tools out |
+| **DIA-NN 1.8.1** | https://github.com/vdemichev/DiaNN/releases | free for academic use; not bundled with FragPipe |
+
+### 2. Arrange into the expected layout
+The container looks for everything under **one folder** that gets mounted at
+`/opt/fragpipe-tools`. Versions matter — match these:
+```
+<your-tools-folder>/
+├── fragpipe-24.0/
+│   ├── lib/fragpipe-24.0.jar
+│   └── tools/                # MSBooster-1.4.14.jar, ptmshepherd-3.0.11.jar,
+│                             # batmass-io-1.36.5.jar, unimod.obo,
+│                             # diann/1.8.2_beta_8/linux/diann-1.8.1.8
+├── msfragger/MSFragger-4.4.jar        (+ ext/thermo)
+├── ionquant/IonQuant-1.11.20.jar
+├── philosopher/philosopher
+├── percolator/percolator
+├── crystal-c/{crystalc-1.5.0.jar, grppr-0.3.23.jar}
+├── ptmprophet/PTMProphetParser
+├── diann/diann-1.8.1.8
+├── dia-umpire/DIA_Umpire_SE-2.3.4.jar
+├── diatracer/{diaTracer-2.2.1.jar, ext/bruker}
+├── tmt-integrator/TMT-Integrator-6.2.1.jar
+├── glycan-databases/{glycan_residues.txt, glycan_mods.txt}
+└── opair/CMD.dll
+```
+Assembling this exact tree by hand is fiddly — **ask us for the layout manifest or
+a pre-arranged bundle** (we can share it once your license permits).
+
+### 3. Wire it in
+Set `FRAGPIPE_TOOLS_DIR` in `.env` to your folder, and **uncomment** the bottom-up
+mount under the `agent` service in `docker-compose.yml`:
+```yaml
+    # - ${FRAGPIPE_TOOLS_DIR}:/opt/fragpipe-tools:ro
+```
+Then `docker compose up -d`. The bottom-up tools now resolve at runtime (read-only,
+no image rebuild needed).
 
 ## Troubleshooting
 - **`docker login` fails with a TLS/x509 error** — the `ca.crt` trust step (§1)
