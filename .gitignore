@@ -1,0 +1,4 @@
+# customer-local — never commit
+.env
+workspaces/
+data/

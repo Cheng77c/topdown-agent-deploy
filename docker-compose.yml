@@ -1,0 +1,83 @@
+# TopDown Agent — customer deployment (pull-only, license-free dev server).
+# Images are pulled from your private registry (Harbor). See README.md.
+#
+#   docker login <your-harbor-host>
+#   cp .env.example .env   &&   edit (fill LLM_API_KEY)
+#   docker compose pull
+#   docker compose up -d
+#   # open http://localhost:3000
+#
+# REGISTRY must point at your Harbor project, e.g. harbor.example.com/topdown.
+name: topdown-agent
+
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-topdown_internal_pw}
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+      - ./postgres/initdb:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  agent:
+    image: ${REGISTRY:?set REGISTRY in .env}/topdown-agent:${TAG:-dev}
+    platform: linux/amd64
+    depends_on:
+      postgres: { condition: service_healthy }
+    environment:
+      LLM_API_KEY: ${LLM_API_KEY:?set LLM_API_KEY in .env}
+      LLM_MODEL: ${LLM_MODEL:-deepseek-chat}
+      LLM_BASE_URL: ${LLM_BASE_URL:-https://api.deepseek.com/v1}
+      LANGSMITH_TRACING: "false"
+      STUDIO_WORKSPACE: /data/workspace          # fallback root (volume) when a thread has no workspace
+      STUDIO_DB_PATH: /data/jobs.db
+      TOPDOWN_BROWSE_DEFAULT: /workspaces        # file picker opens on the user's data area
+      VIEWER_TD_URL: http://viewer-td:7000
+      VIEWER_TD_PUBLIC_URL: http://${PUBLIC_HOST:-localhost}:${VIEWER_PORT:-7390}
+    extra_hosts:
+      - "www.google-analytics.com:0.0.0.0"
+      - "google-analytics.com:0.0.0.0"
+    volumes:
+      - agent-state:/data                                # internal: jobs.db + fallback root (fast, user-invisible)
+      - ${WORKSPACES_DIR:-./workspaces}:/workspaces:rw    # USER DATA: inputs + products + viewer bundles (pick a folder here)
+    ports:
+      - "${AGENT_PORT:-50001}:8000"
+    restart: unless-stopped
+
+  viewer-td:
+    image: ${REGISTRY:?set REGISTRY in .env}/topdown-viewer-td:${TAG:-latest}
+    platform: linux/amd64
+    depends_on:
+      postgres: { condition: service_healthy }
+    environment:
+      DATABASE_URL: postgresql+psycopg://postgres:${POSTGRES_PASSWORD:-topdown_internal_pw}@postgres:5432/viewer_td
+      DATA_ROOT: /data/viewer-data
+      API_CORS_ORIGINS: http://${PUBLIC_HOST:-localhost}:${CHATUI_PORT:-3000},http://${PUBLIC_HOST:-localhost}:${VIEWER_PORT:-7390}
+    volumes:
+      - viewer-data:/data/viewer-data
+      - ${WORKSPACES_DIR:-./workspaces}:/workspaces:ro    # read agent's viewer bundles by path (same mount as agent)
+    ports:
+      - "${VIEWER_PORT:-7390}:7000"
+    restart: unless-stopped
+
+  chat-ui:
+    image: ${REGISTRY:?set REGISTRY in .env}/topdown-chat-ui:${TAG:-latest}
+    platform: linux/amd64
+    environment:
+      LANGGRAPH_API_URL: http://agent:8000
+    depends_on:
+      - agent
+    ports:
+      - "${CHATUI_PORT:-3000}:3000"
+    restart: unless-stopped
+
+volumes:
+  pg-data:
+  agent-state:
+  viewer-data:
