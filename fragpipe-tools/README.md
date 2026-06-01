@@ -1,58 +1,51 @@
-# Drop your bottom-up tools here
+# Bottom-up tools (FragPipe / DIA-NN) — setup
 
-This folder is mounted into the container at **`/opt/fragpipe-tools`** (read-only)
-when you enable the bottom-up mount. Put the downloaded tools here in **exactly**
-this layout (versions matter):
+This folder ends up holding the bottom-up tools, mounted into the container at
+`/opt/fragpipe-tools`. **The recommended way to populate it is the guided
+tool-setup below** — you only have to download **3 license-gated tools** yourself;
+everything else ships with FragPipe and is laid out automatically.
+
+## Recommended: guided setup (FragPipe in your browser)
+
+```bash
+# 1. Start the setup helper (runs the official FragPipe GUI on Linux)
+docker compose --profile setup run --rm --service-ports tool-setup
+```
+Then open **http://localhost:6080/vnc.html** in your browser. You'll see FragPipe.
 
 ```
-fragpipe-tools/
-├── fragpipe-24.0/
-│   ├── lib/fragpipe-24.0.jar
-│   └── tools/                # MSBooster-1.4.14.jar, ptmshepherd-3.0.11.jar,
-│                             # batmass-io-1.36.5.jar, unimod.obo,
-│                             # diann/1.8.2_beta_8/linux/diann-1.8.1.8
-├── msfragger/MSFragger-4.4.jar        (+ ext/thermo)
-├── ionquant/IonQuant-1.11.20.jar
-├── philosopher/philosopher
-├── percolator/percolator
-├── crystal-c/{crystalc-1.5.0.jar, grppr-0.3.23.jar}
-├── ptmprophet/PTMProphetParser
-├── diann/diann-1.8.1.8
-├── dia-umpire/DIA_Umpire_SE-2.3.4.jar
-├── diatracer/{diaTracer-2.2.1.jar, ext/bruker}
-├── tmt-integrator/TMT-Integrator-6.2.1.jar
-├── glycan-databases/{glycan_residues.txt, glycan_mods.txt}
-└── opair/CMD.dll
+2. In FragPipe -> Config tab, click Download/Update for:
+      • MSFragger
+      • IonQuant
+      • diaTracer
+   Accept each academic license yourself. When asked where to save, save under /work.
+   (Philosopher, DIA-NN, Percolator, DIA-Umpire, TMT-Integrator, MSBooster,
+    PTM-Shepherd, Crystal-C … all ship with FragPipe — no download needed.)
 ```
 
-## Where to download
-Use **these exact versions** — the agent expects FragPipe **24.0** and DIA-NN
-**1.8.1**. Do NOT grab "latest"; newer versions change filenames/parameters and
-won't resolve. The tools run inside a **Linux** container, so get the **Linux**
-builds.
+```bash
+# 3. Lay everything out for the agent
+docker compose --profile setup run --rm tool-setup arrange
 
-**Direct downloads (click to start):**
-- FragPipe 24.0 (Linux): https://github.com/Nesvilab/FragPipe/releases/download/24.0/FragPipe-24.0-linux.zip
-- DIA-NN 1.8.1 (Linux): https://github.com/vdemichev/DiaNN/releases/download/1.8.1/diann_1.8.1.tar.gz
+# 4. Enable the mount: uncomment the bottom-up line under `agent` in
+#    docker-compose.yml, then restart
+docker compose up -d
+```
 
-**No direct link — license-gated (you must accept the academic license):**
-MSFragger 4.4, IonQuant 1.11.20 and diaTracer 2.2.1 cannot be linked directly.
-Unzip FragPipe 24.0, open its **Config** tab, and download these there — you accept
-each tool's academic license, then FragPipe fetches them into its `tools` folder.
-Copy the results into the tree above. (Philosopher comes the same way and must be
-the **Linux** build.)
-
-> Easiest path if assembling this is too fiddly: ask us for a pre-arranged Linux
-> bundle (shared only where the license permits).
+Because the agent resolves tools **version-tolerantly**, whatever versions FragPipe
+gives you will work — you don't have to match exact version numbers.
 
 ## Licenses — read before using commercially
-MSFragger, IonQuant, diaTracer and DIA-NN are **free for academic/non-commercial
-use only**. Commercial use needs paid licenses (MSFragger/IonQuant/diaTracer via
-Fragmatics; DIA-NN via Aptila/Thermo). You download and accept these yourself —
-they are **not** shipped in the image.
+MSFragger, IonQuant and diaTracer are **free for academic/non-commercial use
+only**; commercial use needs paid licenses (via Fragmatics). DIA-NN likewise
+(Aptila/Thermo). You accept these yourself in FragPipe — they are **not** shipped
+in the image.
 
-## Turn it on
-1. Place the files above into this folder.
-2. In `docker-compose.yml`, under the `agent` service, **uncomment**:
-   `# - ${FRAGPIPE_TOOLS_DIR:-./fragpipe-tools}:/opt/fragpipe-tools:ro`
-3. `docker compose up -d`
+## Manual alternative
+If you'd rather assemble by hand, drop the tools into this folder so that the
+agent finds (any version of) each of:
+`msfragger/MSFragger-*.jar`, `ionquant/IonQuant-*.jar`, `philosopher/philosopher`,
+`percolator/percolator`, `diann/diann-*`, `diatracer/diaTracer-*.jar`,
+`dia-umpire/DIA_Umpire_SE-*.jar`, `tmt-integrator/TMT-Integrator-*.jar`,
+`crystal-c/crystalc-*.jar` + `grppr-*.jar`, `ptmprophet/PTMProphetParser`,
+`opair/CMD.dll`, `glycan-databases/*.txt`, and a full `fragpipe-24.0/` install.

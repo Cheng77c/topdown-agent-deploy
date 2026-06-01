@@ -79,6 +79,20 @@ services:
       - "${CHATUI_PORT:-3000}:3000"
     restart: unless-stopped
 
+  # One-time bottom-up tool setup (BYO). Not started by default.
+  #   docker compose --profile setup run --rm --service-ports tool-setup
+  #   -> open http://localhost:6080/vnc.html, download the 3 license-gated tools
+  #      in FragPipe (accept licenses), save under /work, then:
+  #   docker compose --profile setup run --rm tool-setup arrange
+  tool-setup:
+    profiles: ["setup"]
+    image: ${REGISTRY:?set REGISTRY in .env}/topdown-tool-setup:${TAG:-dev}
+    platform: linux/amd64
+    volumes:
+      - ${FRAGPIPE_TOOLS_DIR:-./fragpipe-tools}:/work
+    ports:
+      - "${SETUP_PORT:-6080}:6080"
+
 volumes:
   pg-data:
   agent-state:
