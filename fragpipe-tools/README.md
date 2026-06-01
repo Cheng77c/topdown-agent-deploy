@@ -26,10 +26,24 @@ fragpipe-tools/
 ```
 
 ## Where to download
-- **FragPipe 24.0** — https://github.com/Nesvilab/FragPipe/releases (tag 24.0).
-  On first launch it downloads MSFragger / IonQuant / Philosopher / diaTracer
-  after you accept each license. Copy the resulting tools into the tree above.
-- **DIA-NN 1.8.1** — https://github.com/vdemichev/DiaNN/releases.
+Use **these exact versions** — the agent expects FragPipe **24.0** and DIA-NN
+**1.8.1**. Do NOT grab "latest"; newer versions change filenames/parameters and
+won't resolve. The tools run inside a **Linux** container, so get the **Linux**
+builds.
+
+**Direct downloads (click to start):**
+- FragPipe 24.0 (Linux): https://github.com/Nesvilab/FragPipe/releases/download/24.0/FragPipe-24.0-linux.zip
+- DIA-NN 1.8.1 (Linux): https://github.com/vdemichev/DiaNN/releases/download/1.8.1/diann_1.8.1.tar.gz
+
+**No direct link — license-gated (you must accept the academic license):**
+MSFragger 4.4, IonQuant 1.11.20 and diaTracer 2.2.1 cannot be linked directly.
+Unzip FragPipe 24.0, open its **Config** tab, and download these there — you accept
+each tool's academic license, then FragPipe fetches them into its `tools` folder.
+Copy the results into the tree above. (Philosopher comes the same way and must be
+the **Linux** build.)
+
+> Easiest path if assembling this is too fiddly: ask us for a pre-arranged Linux
+> bundle (shared only where the license permits).
 
 ## Licenses — read before using commercially
 MSFragger, IonQuant, diaTracer and DIA-NN are **free for academic/non-commercial

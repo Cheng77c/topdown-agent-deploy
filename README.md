@@ -127,10 +127,15 @@ them. If you want the bottom-up panel, download them yourself (free for academic
 use) and mount them in.
 
 ### 1. Download
-| Get | From | Note |
-|---|---|---|
-| **FragPipe 24.0** — bundles MSFragger 4.4, IonQuant 1.11.20, MSBooster 1.4.14, Philosopher, PTM-Shepherd 3.0.11, Crystal-C, diaTracer 2.2.1, TMT-Integrator | https://github.com/Nesvilab/FragPipe/releases (tag **24.0**) | on first launch FragPipe downloads MSFragger/IonQuant/Philosopher/diaTracer **after you accept each license** — do that once, then copy the tools out |
-| **DIA-NN 1.8.1** | https://github.com/vdemichev/DiaNN/releases | free for academic use; not bundled with FragPipe |
+Use the **exact** versions below (FragPipe 24.0, DIA-NN 1.8.1) and the **Linux**
+builds — the tools run inside a Linux container. Direct links (click to download):
+- **FragPipe 24.0 (Linux):** https://github.com/Nesvilab/FragPipe/releases/download/24.0/FragPipe-24.0-linux.zip
+- **DIA-NN 1.8.1 (Linux):** https://github.com/vdemichev/DiaNN/releases/download/1.8.1/diann_1.8.1.tar.gz
+
+FragPipe 24.0 bundles MSBooster/PTM-Shepherd/Crystal-C/TMT-Integrator, but
+**MSFragger 4.4, IonQuant 1.11.20 and diaTracer 2.2.1 are license-gated** — open
+FragPipe's **Config** tab and download them there (you accept each academic
+license). See `fragpipe-tools/README.md` for the exact layout to copy them into.
 
 ### 2. Arrange into the expected layout
 The container looks for everything under **one folder** that gets mounted at
